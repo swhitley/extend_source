@@ -299,7 +299,7 @@ def process_app_directory(app_directory, app_ref_id, auto_commit):
         logging.error(f"An unexpected error occurred: {e}", exc_info=True)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Workday App CLI Pipeline")
+    parser = argparse.ArgumentParser(description="Extend Source Utility")
     parser.add_argument("--app-dir", default=os.getcwd(), help="Application directory (defaults to current working directory)")
     parser.add_argument("--app-ref-id", default=None, help="Application Reference ID. If omitted, the script will attempt to auto-detect it from extend.json or app.json.")
     parser.add_argument("--commit", action="store_true", help="Automatically execute 'git add .' and 'git commit' after processing.")
