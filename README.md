@@ -21,7 +21,7 @@ This script automates the process of downloading an application from Workday's A
 
 ## Usage
 
-The updated script is fully self-contained and no longer requires a batch (`.cmd` or `.bat`) wrapper. It relies on standard command-line arguments to dictate behavior.
+The updated script is fully self-contained and does not require a batch (`.cmd` or `.bat`) wrapper. It relies on standard command-line arguments to dictate behavior.
 
 Navigate to your local application directory in your terminal and execute the script using Python.
 
