@@ -31,19 +31,25 @@ def validate_directory(directory, error_message):
 
 def get_app_info(app_dir):
     """Auto-detects the application Reference ID by parsing extend.json or app.json."""
-    for filename in ['extend.json', 'app.json']:
-        filepath = os.path.join(app_dir, filename)
-        if os.path.exists(filepath):
-            try:
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    # The reference ID usually holds the app_name_companycode format
-                    app_ref_id = data.get('referenceId') or data.get('id')
-                    if app_ref_id:
-                        logging.info(f"Auto-detected App Reference ID '{app_ref_id}' from {filename}")
-                        return app_ref_id
-            except Exception as e:
-                logging.warning(f"Could not parse {filename}: {e}")
+    src_dir = os.path.join(app_dir, SRC_DIRECTORY)
+    search_paths = [app_dir, src_dir]
+    
+    for directory in search_paths:
+        if not os.path.exists(directory):
+            continue
+            
+        for filename in ['extend.json', 'app.json']:
+            filepath = os.path.join(directory, filename)
+            if os.path.exists(filepath):
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        app_ref_id = data.get('referenceId') or data.get('id')
+                        if app_ref_id:
+                            logging.info(f"Auto-detected App Reference ID '{app_ref_id}' from {filepath}")
+                            return app_ref_id
+                except Exception as e:
+                    logging.warning(f"Could not parse {filepath}: {e}")
     return None
 
 def get_latest_unprocessed_zip(directory):
