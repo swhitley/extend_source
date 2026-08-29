@@ -1,4 +1,4 @@
-# WCP Pipeline Script
+# WDCLI Pipeline Script
 
 This script automates the process of downloading an application from Workday's App Hub and prepares the files for source code management outside of dedicated IDEs.
 
