@@ -30,26 +30,20 @@ def validate_directory(directory, error_message):
         raise NotADirectoryError(error_message)
 
 def get_app_info(app_dir):
-    """Auto-detects the application Reference ID by parsing extend.json or app.json."""
-    src_dir = os.path.join(app_dir, SRC_DIRECTORY)
-    search_paths = [app_dir, src_dir]
+    """Auto-detects the application Reference ID by parsing appManifest.json."""
+    filepath = os.path.join(app_dir, SRC_DIRECTORY, 'appManifest.json')
     
-    for directory in search_paths:
-        if not os.path.exists(directory):
-            continue
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                app_ref_id = data.get('referenceId') or data.get('id')
+                if app_ref_id:
+                    logging.info(f"Auto-detected App Reference ID '{app_ref_id}' from {filepath}")
+                    return app_ref_id
+        except Exception as e:
+            logging.warning(f"Could not parse {filepath}: {e}")
             
-        for filename in ['extend.json', 'app.json']:
-            filepath = os.path.join(directory, filename)
-            if os.path.exists(filepath):
-                try:
-                    with open(filepath, 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-                        app_ref_id = data.get('referenceId') or data.get('id')
-                        if app_ref_id:
-                            logging.info(f"Auto-detected App Reference ID '{app_ref_id}' from {filepath}")
-                            return app_ref_id
-                except Exception as e:
-                    logging.warning(f"Could not parse {filepath}: {e}")
     return None
 
 def get_latest_unprocessed_zip(directory):
@@ -201,10 +195,10 @@ def download_app_from_wdcli(app_ref_id, archive_dir):
     logging.info(f"Downloading app '{app_ref_id}' to '{archive_dir}'...")
     
     try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True, shell=use_shell)
+        subprocess.run(cmd, check=True, shell=use_shell)
         logging.info("CLI download successful.")
     except subprocess.CalledProcessError as e:
-        logging.warning(f"Download failed. The CLI session may have expired. Output: {e.stderr.strip()}")
+        logging.warning("Download failed. The CLI session may have expired.")
         logging.info("Attempting 'wdcli auth login' with 120-second timeout...")
         try:
             # 120-second timeout added for headless CI/CD environment protection
