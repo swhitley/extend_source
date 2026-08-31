@@ -61,7 +61,7 @@ python3 /opt/extend_utilities/extend_source.py
 
 ### Advanced Execution (Targeted with Git Commit)
 
-You can explicitly define the target directory, override the auto-detected Reference ID, and trigger an automated Git commit with a custom message upon completion.
+You can explicitly define the target directory and Reference ID, and trigger an automated Git commit with a custom message upon completion.
 
 **Windows:**
 
