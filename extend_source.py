@@ -213,7 +213,7 @@ def download_app_from_wdcli(app_ref_id, archive_dir):
     except FileNotFoundError:
         raise Exception("wdcli executable not found. Ensure it is installed and added to the system PATH.")
 
-def execute_git_commit(app_dir):
+def execute_git_commit(app_dir, commit_msg):
     """Executes git add and git commit for automated version control integration."""
     logging.info("Executing Git version control commands...")
     try:
@@ -221,8 +221,8 @@ def execute_git_commit(app_dir):
         status = subprocess.run(["git", "status", "--porcelain"], cwd=app_dir, check=True, capture_output=True, text=True)
         
         if status.stdout.strip():
-            subprocess.run(["git", "commit", "-m", "Automated app sync"], cwd=app_dir, check=True, capture_output=True, text=True)
-            logging.info("Git commit successful: 'Automated app sync'")
+            subprocess.run(["git", "commit", "-m", commit_msg], cwd=app_dir, check=True, capture_output=True, text=True)
+            logging.info(f"Git commit successful: '{commit_msg}'")
         else:
             logging.info("Git status is clean. No changes to commit.")
     except subprocess.CalledProcessError as e:
@@ -230,7 +230,7 @@ def execute_git_commit(app_dir):
     except FileNotFoundError:
         logging.error("Git executable not found. Ensure git is installed and in your PATH.")
 
-def process_app_directory(app_directory, app_ref_id, auto_commit):
+def process_app_directory(app_directory, app_ref_id, auto_commit, commit_msg):
     """
     Coordinates the directory preparation, extraction, and formatting.
     """
@@ -244,7 +244,7 @@ def process_app_directory(app_directory, app_ref_id, auto_commit):
         if not app_ref_id:
             app_ref_id = get_app_info(app_directory)
             if not app_ref_id:
-                raise ValueError("App Reference ID could not be auto-detected from extend.json/app.json and was not provided as an argument.")
+                raise ValueError("App Reference ID could not be auto-detected from ./src/appManifest.json and was not provided as an argument.")
 
         src_directory = os.path.join(app_directory, SRC_DIRECTORY)
         archive_directory = os.path.join(app_directory, ARCHIVE_DIRECTORY)        
@@ -285,21 +285,23 @@ def process_app_directory(app_directory, app_ref_id, auto_commit):
         
         # Step 8: Optional automated git commit loop
         if auto_commit:
-            execute_git_commit(app_directory)
+            execute_git_commit(app_directory, commit_msg)
 
         logging.info("Processing complete.")  
 
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extend Source Utility")
     parser.add_argument("--app-dir", default=os.getcwd(), help="Application directory (defaults to current working directory)")
-    parser.add_argument("--app-ref-id", default=None, help="Application Reference ID. If omitted, the script will attempt to auto-detect it from extend.json or app.json.")
+    parser.add_argument("--app-ref-id", default=None, help="Application Reference ID. If omitted, the script will attempt to auto-detect it from ./src/appManifest.json.")
     parser.add_argument("--commit", action="store_true", help="Automatically execute 'git add .' and 'git commit' after processing.")
+    parser.add_argument("--commit-msg", default="Automated app sync", help="Overrides the default commit message.")
     args = parser.parse_args()
 
     try:
-        process_app_directory(args.app_dir, args.app_ref_id, args.commit)
+        process_app_directory(args.app_dir, args.app_ref_id, args.commit, args.commit_msg)
     finally:
         input("\nPress Enter to continue...")
