@@ -4,7 +4,7 @@ This script automates the process of downloading an application from Workday's A
 
 ## Pipeline Operations
 
-1. **Auto-Detection:** Detects the Application Reference ID by parsing the local `extend.json` or `app.json` file.
+1. **Auto-Detection:** Detects the Application Reference ID by parsing the local `/src/appManifest.json` file.
 2. **Smart Download & Auth:** Attempts to download the source archive using WDCLI. If the session has expired, it automatically halts, prompts `wdcli auth login` (with a 120-second timeout protection for automated environments), and retries the download.
 3. **Directory Cleanup:** Clears the existing `src` directory while safely preserving version control tracking (`.git`).
 4. **Extraction:** Unzips the newly downloaded application files into the `src` directory.
@@ -25,7 +25,7 @@ The script is fully self-contained and relies on standard command-line arguments
 
 ### Standard Execution (Auto-Detect)
 
-If your application directory already contains an `extend.json` or `app.json` file, the script will automatically detect the Application Reference ID and assume the current working directory is the target.
+If your application directory already contains a `/src/appManifest.json` file, the script will automatically detect the Application Reference ID and assume the current working directory is the target.
 
 ```shell
 py "C:\extend_utilities\extend_source.py"
@@ -44,5 +44,5 @@ py "C:\extend_utilities\extend_source.py" --app-ref-id "security_analyzer_kkvxdf
 ### Available Arguments
 
 * `--app-dir`: The target application directory. Defaults to the current working directory.
-* `--app-ref-id`: The Application Reference ID. If omitted, the script attempts to parse it from the local JSON configuration files.
+* `--app-ref-id`: The Application Reference ID. If omitted, the script attempts to parse it from `/src/appManifest.json`.
 * `--commit`: An optional flag that executes `git add .` and `git commit -m "Automated app sync"` immediately after the directory processing is complete.
